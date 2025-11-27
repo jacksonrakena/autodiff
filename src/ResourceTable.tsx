@@ -7,6 +7,7 @@ import {
   Text,
   ScrollArea,
   Tooltip,
+  Spinner,
 } from "@radix-ui/themes";
 import { useEffect, useMemo, useState } from "react";
 import { http } from "./App";
@@ -25,9 +26,14 @@ export const ResourceTable = ({
     version: string;
   };
 }) => {
-  const [resources, setResources] = useState<any[]>([]);
+  const [resourceState, setResourceState] = useState<
+    | { state: "loading" }
+    | { state: "error"; error: string }
+    | { state: "ready"; resources: any[] }
+  >({ state: "loading" });
   useEffect(() => {
     (async () => {
+      setResourceState({ state: "loading" });
       console.log("Fetching resources for", resource);
       const path =
         resource.group === ""
@@ -38,28 +44,19 @@ export const ResourceTable = ({
       const res = await http<{ items: any[] }>(path);
       if (res.success) {
         console.log(res.data);
-        setResources(res.data.items);
-        setDiscoveredRows([]);
+        setResourceState({ state: "ready", resources: res.data.items });
       } else {
-        console.error("Failed to fetch resources:", res.error);
+        setResourceState({ state: "error", error: res.error });
       }
     })();
   }, [resource]);
-  const [discoveredRows, setDiscoveredRows] = useState<RowType[] | null>(null);
-  //   useEffect(() => {
-  //     async () => {
-  //       if (!discoveredRows && resources.length > 0) {
-  //         const rows = await discoverRows(resource, resources[0]);
-  //         console.log("Discovered rows:", rows);
-  //         setDiscoveredRows(rows);
-  //       }
-  //     };
-  //   }, [discoveredRows, resources, discoverRows]);
   const [defaultRows, setDefaultRows] = useState<RowType[]>([]);
   useEffect(() => {
     (async () => {
       const discovered =
-        resources.length > 0 ? await discoverRows(resource, resources[0]) : [];
+        resourceState.state === "ready" && resourceState.resources.length > 0
+          ? await discoverRows(resource, resourceState.resources[0])
+          : [];
       setDefaultRows([
         {
           name: "Name",
@@ -85,10 +82,9 @@ export const ResourceTable = ({
         },
       ]);
     })();
-  }, [discoveredRows, resources]);
-  //console.log(Object.keys(resources[0].status));
+  }, [resourceState]);
   return (
-    <ScrollArea>
+    <ScrollArea style={{ width: "100%" }}>
       <Flex gap="4" align="center">
         <DataList.Item>
           <DataList.Label minWidth="88px">Namespace</DataList.Label>
@@ -96,63 +92,54 @@ export const ResourceTable = ({
         </DataList.Item>
       </Flex>
 
-      <Table.Root size="1">
-        <Table.Header>
-          <Table.Row>
-            {defaultRows.map((row) => (
-              <Tooltip content={row.help ?? "none"} key={row.name}>
-                <Table.ColumnHeaderCell>{row.name}</Table.ColumnHeaderCell>
-              </Tooltip>
-            ))}
-          </Table.Row>
-        </Table.Header>
-
-        <Table.Body>
-          {resources.map((pod) => (
-            <Table.Row key={pod.metadata?.name}>
+      {resourceState.state === "loading" && (
+        <Flex
+          justify="center"
+          align="center"
+          style={{ height: "100%", width: "100%" }}
+        >
+          <Box>
+            <Spinner size="3" />
+            <Text>
+              Loading {resource.version}/{resource.kind}...
+            </Text>
+          </Box>
+        </Flex>
+      )}
+      {resourceState.state === "ready" && (
+        <Table.Root size="1">
+          <Table.Header>
+            <Table.Row>
               {defaultRows.map((row) => (
-                <Table.Cell key={row.name}>
-                  {"render" in row
-                    ? row.render(pod)
-                    : JSON.stringify(
-                        row.path
-                          .split(".")
-                          .reduce(
-                            (obj, key) => (obj ? obj[key] : "unknown"),
-                            pod
-                          )
-                      )}
-                </Table.Cell>
+                <Tooltip content={row.help ?? "none"} key={row.name}>
+                  <Table.ColumnHeaderCell>{row.name}</Table.ColumnHeaderCell>
+                </Tooltip>
               ))}
             </Table.Row>
-          ))}
-          {/* {resources.map((pod) => (
-            <Table.Row key={pod.metadata?.name}>
-              <Table.RowHeaderCell>
-                {pod.metadata?.name ?? "unknown"}
-              </Table.RowHeaderCell>
-              <Table.Cell>
-                {pod.status?.containerStatuses
-                  ? pod.status.containerStatuses
-                      .map(
-                        (cs) =>
-                          `${cs.ready ? "✓" : "✗"} ${cs.name ?? "unknown"}`
-                      )
-                      .join(", ")
-                  : "unknown"}
-              </Table.Cell>
-              <Table.Cell>
-                <StatusBadge status={pod.status?.phase ?? "unknown"} />
-              </Table.Cell>
-              <Table.Cell>
-                {pod.status?.containerStatuses
-                  ?.map((e) => e.restartCount)
-                  .reduce((a, b) => a + b, 0) ?? "unknown"}
-              </Table.Cell>
-            </Table.Row>
-          ))} */}
-        </Table.Body>
-      </Table.Root>
+          </Table.Header>
+
+          <Table.Body>
+            {resourceState.resources.map((pod) => (
+              <Table.Row key={pod.metadata?.name}>
+                {defaultRows.map((row) => (
+                  <Table.Cell key={row.name}>
+                    {"render" in row
+                      ? row.render(pod)
+                      : JSON.stringify(
+                          row.path
+                            .split(".")
+                            .reduce(
+                              (obj, key) => (obj ? obj[key] : "unknown"),
+                              pod
+                            )
+                        )}
+                  </Table.Cell>
+                ))}
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table.Root>
+      )}
     </ScrollArea>
   );
 };

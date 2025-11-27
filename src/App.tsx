@@ -207,9 +207,8 @@ function App() {
             </Flex>
           </ScrollArea>
         </Flex>
-        <Box>
-          <ResourceTable resource={selectedResource} />
-        </Box>
+
+        <ResourceTable resource={selectedResource} />
       </Flex>
 
       <p>{greetMsg}</p>
