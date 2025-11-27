@@ -4,6 +4,9 @@ A GUI re-implementation of `k9s`, the best Kubernetes client.
 Designing mostly around my needs as a Kubernetes engineer at a large organisation, focusing on:
 - Quick traversal between namespaces, resource types, and resources
   - Keybinds essential, minimal mouse usage (except for deep inspection)
+- Performance at scale is critical
+  - 5,000+ pods, 20+ namespaces, lots of custom resource definitions, custom operators, ArgoCD, Kargo, etc
+  - Designed with relative namespace isolation in mind
 - Advanced control over how Autodiff connects to Kubernetes
   - Proxy server, proxy script to generate credentials (common in enterprise setups)
 - Moving beyond limitations in `k9s`
