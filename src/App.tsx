@@ -29,14 +29,39 @@ import {
 } from "@radix-ui/themes";
 import { ResourceTable } from "./ResourceTable";
 import { TypeSwitcher } from "./popups/TypeSwitcher";
-export const useKeyPress = (targetKey: string, callback?: () => void) => {
+import { ResourceList } from "./panes/ResourceList";
+export const useKeyPress = (
+  targetKey: string,
+  callback?: () => void,
+  options: {
+    noEffectWhileInTextInput?: boolean;
+  } = {
+    noEffectWhileInTextInput: true,
+  }
+) => {
   const [keyPressed, setKeyPressed] = useState(false);
 
   useEffect(() => {
-    const downHandler = ({ key }: KeyboardEvent) => {
+    const downHandler = (event: KeyboardEvent) => {
+      const { key } = event;
+
+      if (options.noEffectWhileInTextInput) {
+        const activeElement = document.activeElement;
+
+        // Check if the active element is an input or textarea
+        if (
+          activeElement?.tagName === "INPUT" ||
+          activeElement?.tagName === "TEXTAREA"
+        ) {
+          // Do nothing if in a text input
+          return;
+        }
+      }
+
       if (key === targetKey) {
         setKeyPressed(true);
         if (callback) callback();
+        event.preventDefault();
       }
     };
 
@@ -80,9 +105,13 @@ function App() {
   const kp = useKeyPress(":", () => {
     setiskpo(true);
   });
-  useKeyPress("Escape", () => {
-    if (iskpo) setiskpo(false);
-  });
+  useKeyPress(
+    "Escape",
+    () => {
+      if (iskpo) setiskpo(false);
+    },
+    { noEffectWhileInTextInput: false }
+  );
   const [iskpo, setiskpo] = useState(false);
   const [termv, settermv] = useState("");
   const [greetMsg, setGreetMsg] = useState("");
@@ -155,59 +184,10 @@ function App() {
           padding: "8px",
         }}
       >
-        <Flex direction={"column"} gap="4">
-          <ScrollArea
-            type="always"
-            scrollbars="vertical"
-            style={{ height: "100%" }}
-          >
-            {" "}
-            <Flex
-              direction="column"
-              style={{
-                borderRight: "1px solid var(--gray-3)",
-                paddingRight: "16px",
-                // overflowY: "scroll",
-                // height: "100%",
-                fontSize: "14px",
-              }}
-              gap="4"
-            >
-              {filteredApiGroups.map((res) => (
-                <Box key={res.name}>
-                  <Text
-                    style={{
-                      color: "var(--gray-11)",
-                      fontSize: "13px",
-                    }}
-                  >
-                    {res.name}
-                  </Text>
-                  <Flex direction={"column"}>
-                    {res.resources.map((r) => (
-                      <Link
-                        href="#"
-                        key={r.kind}
-                        style={{ color: "black" }}
-                        onClick={() => {
-                          setSelectedResource({
-                            kind: r.kind,
-                            group: res.name === "Core" ? "" : res.name,
-                            version: res.version,
-                            plural: r.plural,
-                          });
-                        }}
-                      >
-                        {r.kind}
-                      </Link>
-                    ))}
-                  </Flex>
-                </Box>
-              ))}
-            </Flex>
-          </ScrollArea>
-        </Flex>
-
+        <ResourceList
+          onSelectedResourceChanged={(e) => setSelectedResource(e)}
+          selectedResource={selectedResource}
+        />
         <ResourceTable resource={selectedResource} />
       </Flex>
 

@@ -1,7 +1,7 @@
 import { Callout, Code, Dialog, Flex, TextField, Text } from "@radix-ui/themes";
 import { ResourceType } from "../types";
 import { useEffect, useMemo, useState } from "react";
-import { InfoCircledIcon } from "@radix-ui/react-icons";
+import { InfoCircledIcon, MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { http, useKeyPress } from "../App";
 
 const tryResolveResourceType = (
@@ -87,18 +87,22 @@ export const TypeSwitcher = ({
       setComputed(result);
     })();
   }, [termv, resourceTypes]);
-  useKeyPress("Enter", () => {
-    if (computed && !["none_found", "loading"].includes(computed.action)) {
-      onAction(computed);
-    }
-  });
+  useKeyPress(
+    "Enter",
+    () => {
+      if (computed && !["none_found", "loading"].includes(computed.action)) {
+        onAction(computed);
+      }
+    },
+    { noEffectWhileInTextInput: false }
+  );
   return (
     <Dialog.Root open={isOpen}>
       <Dialog.Content size="2" maxWidth="300px">
         {isOpen && (
           <Flex direction="column" gap="2" mb="4">
             <TextField.Root
-              placeholder="Search the docs…"
+              placeholder="Jump to a resource type or resource"
               onChange={(e) => {
                 if (e.currentTarget.value === "") {
                   onClose();
@@ -111,9 +115,9 @@ export const TypeSwitcher = ({
               }}
               value={termv}
             >
-              {/* <TextField.Slot>
-                      <MagnifyingGlassIcon height="16" width="16" />
-                    </TextField.Slot> */}
+              <TextField.Slot>
+                <MagnifyingGlassIcon height="16" width="16" />
+              </TextField.Slot>
             </TextField.Root>
             {computed && (
               <>

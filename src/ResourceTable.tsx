@@ -8,13 +8,15 @@ import {
   ScrollArea,
   Tooltip,
   Spinner,
+  TextField,
 } from "@radix-ui/themes";
-import { useEffect, useMemo, useState } from "react";
-import { http } from "./App";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { http, useKeyPress } from "./App";
 import humanize from "@jsdevtools/humanize-anything";
 
 import { intervalToDuration, formatDuration } from "date-fns";
 import { RowType, discoverRows } from "./row-discovery";
+import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 
 export const ResourceTable = ({
   resource,
@@ -26,6 +28,19 @@ export const ResourceTable = ({
     version: string;
   };
 }) => {
+  const ref = useRef<HTMLInputElement | null>(null);
+  useKeyPress("/", () => {
+    ref.current?.focus();
+  });
+  useKeyPress(
+    "Escape",
+    () => {
+      setSearchTerm("");
+      ref.current?.blur();
+    },
+    { noEffectWhileInTextInput: false }
+  );
+  const [searchTerm, setSearchTerm] = useState("");
   const [resourceState, setResourceState] = useState<
     | { state: "loading" }
     | { state: "error"; error: string }
@@ -84,63 +99,82 @@ export const ResourceTable = ({
     })();
   }, [resourceState]);
   return (
-    <ScrollArea style={{ width: "100%" }}>
-      <Flex gap="4" align="center">
-        <DataList.Item>
-          <DataList.Label minWidth="88px">Namespace</DataList.Label>
-          <DataList.Value>All</DataList.Value>
-        </DataList.Item>
-      </Flex>
-
-      {resourceState.state === "loading" && (
-        <Flex
-          justify="center"
-          align="center"
-          style={{ height: "100%", width: "100%" }}
+    <Flex direction="column">
+      <Box>
+        <TextField.Root
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.currentTarget.value)}
+          ref={ref}
+          placeholder="mutex guard deez nuts"
         >
-          <Box>
-            <Spinner size="3" />
-            <Text>
-              Loading {resource.version}/{resource.kind}...
-            </Text>
-          </Box>
-        </Flex>
-      )}
-      {resourceState.state === "ready" && (
-        <Table.Root size="1">
-          <Table.Header>
-            <Table.Row>
-              {defaultRows.map((row) => (
-                <Tooltip content={row.help ?? "none"} key={row.name}>
-                  <Table.ColumnHeaderCell>{row.name}</Table.ColumnHeaderCell>
-                </Tooltip>
-              ))}
-            </Table.Row>
-          </Table.Header>
-
-          <Table.Body>
-            {resourceState.resources.map((pod) => (
-              <Table.Row key={pod.metadata?.name}>
+          <TextField.Slot>
+            <MagnifyingGlassIcon height="16" width="16" />
+          </TextField.Slot>
+        </TextField.Root>
+      </Box>
+      <ScrollArea style={{ width: "100%" }}>
+        {resourceState.state === "loading" && (
+          <Flex
+            justify="center"
+            align="center"
+            style={{ height: "100%", width: "100%" }}
+          >
+            <Box>
+              <Spinner size="3" />
+              <Text>
+                Loading {resource.version}/{resource.kind}...
+              </Text>
+            </Box>
+          </Flex>
+        )}
+        {resourceState.state === "ready" && (
+          <Table.Root size="1">
+            <Table.Header>
+              <Table.Row>
                 {defaultRows.map((row) => (
-                  <Table.Cell key={row.name}>
-                    {"render" in row
-                      ? row.render(pod)
-                      : JSON.stringify(
-                          row.path
-                            .split(".")
-                            .reduce(
-                              (obj, key) => (obj ? obj[key] : "unknown"),
-                              pod
-                            )
-                        )}
-                  </Table.Cell>
+                  <Tooltip content={row.help ?? "none"} key={row.name}>
+                    <Table.ColumnHeaderCell>{row.name}</Table.ColumnHeaderCell>
+                  </Tooltip>
                 ))}
               </Table.Row>
-            ))}
-          </Table.Body>
-        </Table.Root>
-      )}
-    </ScrollArea>
+            </Table.Header>
+
+            <Table.Body>
+              {resourceState.resources
+                .filter((r) => {
+                  if (searchTerm === "") return true;
+                  const term = searchTerm.toLowerCase();
+                  return (
+                    r.metadata?.name?.toLowerCase().includes(term) ||
+                    (r.metadata?.namespace &&
+                      r.metadata?.namespace.toLowerCase().includes(term)) ||
+                    r.status?.phase?.toLowerCase().includes(term) ||
+                    humanize(r).toLowerCase().includes(term)
+                  );
+                })
+                .map((pod) => (
+                  <Table.Row key={pod.metadata?.name}>
+                    {defaultRows.map((row) => (
+                      <Table.Cell key={row.name}>
+                        {"render" in row
+                          ? row.render(pod)
+                          : JSON.stringify(
+                              row.path
+                                .split(".")
+                                .reduce(
+                                  (obj, key) => (obj ? obj[key] : "unknown"),
+                                  pod
+                                )
+                            )}
+                      </Table.Cell>
+                    ))}
+                  </Table.Row>
+                ))}
+            </Table.Body>
+          </Table.Root>
+        )}
+      </ScrollArea>
+    </Flex>
   );
 };
 
