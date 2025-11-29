@@ -35,9 +35,12 @@ export const WellKnownResources: {
       {
         id: "status",
         header: "Status",
-        accessorFn: (item: V1Pod) => item.status?.phase || "Unknown",
-        Cell: ({ row }) => {
-          const status = row.original.status?.phase || "Unknown";
+        accessorFn: (item: V1Pod) =>
+          item.metadata?.deletionTimestamp
+            ? "Terminating"
+            : item.status?.phase || "Unknown",
+        Cell: ({ row, cell }) => {
+          const status = (cell.getValue() as string) || "Unknown";
           let color: "red" | "green" | "yellow" | "gray" = "gray";
           if (status === "Running") color = "green";
           else if (status === "Pending") color = "yellow";
