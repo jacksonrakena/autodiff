@@ -12,9 +12,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   MantineReactTable,
-  MRT_Row,
-  MRT_TableBodyRow,
-  MRT_TableInstance,
   useMantineReactTable,
   type MRT_ColumnDef,
 } from "mantine-react-table";
@@ -69,14 +66,6 @@ export const ResourceTableInner = ({
     [asyncColumns]
   );
 
-  const CustomTableRow = (props) => {
-    return (
-      <>
-        bingus
-        <MRT_TableBodyRow {...props} />
-      </>
-    );
-  };
   const table = useMantineReactTable({
     columns: rows,
     data: resources,
