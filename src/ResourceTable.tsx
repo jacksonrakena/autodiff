@@ -1,4 +1,11 @@
-import { Box, Flex, Text, ScrollArea, TextField } from "@radix-ui/themes";
+import {
+  Box,
+  Flex,
+  Text,
+  ScrollArea,
+  TextField,
+  Tooltip,
+} from "@radix-ui/themes";
 import { useEffect, useRef, useState } from "react";
 
 import {
@@ -103,6 +110,7 @@ export const ResourceTableInner = ({
           Cell: ({ renderedCellValue, cell }) => (
             <>{formatKubeAge(cell.getValue() as Date)}</>
           ),
+          size: 80,
         },
       ]);
     })();
@@ -115,6 +123,11 @@ export const ResourceTableInner = ({
     initialState: {
       density: "xs",
     },
+    enablePagination: false,
+    enableTableFooter: false,
+    enableColumnResizing: true,
+    enableRowVirtualization: true,
+    enableBottomToolbar: false,
   });
   return (
     <Flex direction="column" flexGrow={"1"}>
@@ -135,18 +148,22 @@ export const ResourceTableInner = ({
           </TextField.Slot>
         </TextField.Root>
         <Box>
-          <Text
-            color="gray"
-            size={"2"}
-            unselectable="on"
-            data-tauri-drag-region
-            style={{
-              WebkitUserSelect: "none",
-              userSelect: "none",
-            }}
+          <Tooltip
+            content={`Last event: ${lastEventTime?.toString() ?? "unknown"}`}
           >
-            Last event: {lastEventTime?.toString() ?? "unknown"}
-          </Text>
+            <Text
+              color="gray"
+              size={"2"}
+              unselectable="on"
+              data-tauri-drag-region
+              style={{
+                WebkitUserSelect: "none",
+                userSelect: "none",
+              }}
+            >
+              {resources.length} {kubeParams.resource_plural}
+            </Text>
+          </Tooltip>
         </Box>
       </Flex>
       <ScrollArea>

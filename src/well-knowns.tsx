@@ -31,6 +31,7 @@ export const WellKnownResources: {
           const color = total === ready && total > 0 ? "green" : "red";
           return <Badge color={color}>{`${ready}/${total}`}</Badge>;
         },
+        size: 80,
       },
       {
         id: "status",
@@ -47,6 +48,7 @@ export const WellKnownResources: {
           else if (status === "Failed") color = "red";
           return <Badge color={color}>{status}</Badge>;
         },
+        size: 100,
       },
       {
         id: "restarts",
@@ -55,6 +57,8 @@ export const WellKnownResources: {
           item.status?.containerStatuses
             ?.map((e) => e.restartCount)
             .reduce((a, b) => a + b, 0) || 0,
+
+        size: 80,
       },
       {
         id: "lastRestart",
@@ -75,10 +79,11 @@ export const WellKnownResources: {
               .filter((t): t is string => t !== undefined)
               .map((t) => new Date(t).getTime()) || [];
           if (restartTimes.length === 0) {
-            return <>-</>;
+            return <></>;
           }
           return <>{formatKubeAge(new Date(Math.max(...restartTimes)))}</>;
         },
+        size: 80,
       },
       {
         id: "lastRestartReason",
@@ -96,7 +101,7 @@ export const WellKnownResources: {
               ?.map((cs) => cs.lastState?.terminated)
               .filter((t) => !!t) ?? [];
           if (restartReasons.length === 0) {
-            return <>-</>;
+            return <></>;
           }
           return (
             <>
@@ -111,6 +116,7 @@ export const WellKnownResources: {
         id: "node",
         header: "Node",
         accessorFn: (item: V1Pod) => item.spec?.nodeName || "Unknown",
+        size: 120,
       },
     ],
   },

@@ -29,6 +29,7 @@ export const useResourceSubscription = <T,>(
     };
     const channel = new Channel<InternalSubscriptionEvent<T>>();
     channel.onmessage = (msg) => {
+      console.log(msg);
       callback(msg);
     };
 
