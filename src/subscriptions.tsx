@@ -1,6 +1,6 @@
 import { Channel, invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
-import { ResourceType } from "./types";
+import { type KubeUrlComponents } from "./util/kube";
 
 export interface ResourceWithId {
   metadata: {
@@ -14,28 +14,25 @@ type InternalSubscriptionEvent<T> = {
 };
 
 export const useResourceSubscription = <T,>(
-  resource: ResourceType,
+  resource: KubeUrlComponents,
   callback: (event: InternalSubscriptionEvent<T>) => void
 ) => {
   useEffect(() => {
     const subscriptionId = Math.floor(Math.random() * 99999999);
     const subscription = {
-      group: resource.group,
-      version: resource.version,
-      kind: resource.kind,
-      plural: resource.plural,
-      apiVersion: resource.api_version,
+      ...resource,
       subscriptionId: subscriptionId,
     };
     const channel = new Channel<InternalSubscriptionEvent<T>>();
     channel.onmessage = (msg) => {
-      console.log("Received event for ", resource.kind, msg);
       callback(msg);
     };
 
     console.log("Listening for updates", subscription);
     invoke("start_listening", {
       ...subscription,
+      apiVersion: resource.api_version,
+      resourcePlural: resource.resource_plural,
       channel,
     });
     return () => {
@@ -51,14 +48,15 @@ export type ResourceListState<T extends ResourceWithId> = {
   lastEventTime: Date | null;
 };
 export const useResourceList = <T extends ResourceWithId>(
-  resource: ResourceType
+  resourceType: KubeUrlComponents
 ) => {
   const [resources, setResources] = useState<T[]>([]);
   const [lastTime, setLastTime] = useState<Date | null>(null);
   useEffect(() => {
     setResources([]);
-  }, [resource]);
-  useResourceSubscription<T>(resource, (event) => {
+    setLastTime(new Date());
+  }, [resourceType]);
+  useResourceSubscription<T>(resourceType, (event) => {
     setLastTime(new Date());
     switch (event.event) {
       case "initApply":

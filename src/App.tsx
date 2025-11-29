@@ -9,10 +9,12 @@ import "@radix-ui/colors/green-dark.css";
 import "@radix-ui/colors/red-dark.css";
 import { invoke } from "@tauri-apps/api/core";
 import "@radix-ui/themes/styles.css";
-import { Flex } from "@radix-ui/themes";
+import { Box, Flex, IconButton } from "@radix-ui/themes";
 import { ResourceTable } from "./ResourceTable";
 import { TypeSwitcher } from "./popups/TypeSwitcher";
 import { ResourceList } from "./panes/ResourceList";
+import { Outlet, useNavigate } from "react-router";
+import { ArrowLeftIcon, ArrowRightIcon } from "@radix-ui/react-icons";
 export const useKeyPress = (
   targetKey: string,
   callback?: () => void,
@@ -91,23 +93,7 @@ function App() {
     version: string;
     resources: { kind: string; plural: string; api_version: string }[];
   };
-  const [selectedResource, setSelectedResource] = useState<{
-    kind: string;
-    group: string;
-    version: string;
-    api_version: string;
-    plural: string;
-  }>({
-    // plural: "connectors",
-    // kind: "Connector",
-    // group: "tailscale.com",
-    // version: "v1alpha1",
-    plural: "pods",
-    kind: "Pod",
-    group: "",
-    version: "v1",
-    api_version: "v1",
-  });
+
   const [apiResources, setApiResources] = useState<ApiGroup[]>([]);
   useEffect(() => {
     (async () => {
@@ -144,14 +130,48 @@ function App() {
         style={{
           overflow: "clip",
           height: "100%",
-          padding: "8px",
         }}
       >
-        <ResourceList
-          onSelectedResourceChanged={(e) => setSelectedResource(e)}
-          selectedResource={selectedResource}
-        />
-        <ResourceTable resource={selectedResource} />
+        <Flex gap="2" direction={"column"}>
+          <Flex
+            data-tauri-drag-region
+            style={{
+              paddingTop: "48px",
+              paddingLeft: "32px",
+              paddingBottom: "32px",
+              borderBottom: "1px solid var(--gray-3)",
+              //backgroundColor: "red",
+            }}
+            align={"center"}
+            justify={"between"}
+          >
+            <Flex>hello :) </Flex>
+            <Flex gap="4" data-tauri-drag-region>
+              <IconButton
+                variant="surface"
+                color="gray"
+                disabled={window.history.state?.idx === 0}
+                onClick={() => window.history.back()}
+              >
+                <ArrowLeftIcon />
+              </IconButton>
+              <IconButton
+                variant="surface"
+                color="gray"
+                disabled={
+                  window.history.state?.idx === window.history.length - 1
+                }
+                onClick={() => window.history.forward()}
+              >
+                <ArrowRightIcon />
+              </IconButton>
+            </Flex>
+          </Flex>
+
+          <ResourceList />
+        </Flex>
+        <Outlet />
+        {/* <ResourceTable resource={selectedResource} /> */}
       </Flex>
 
       <TypeSwitcher
@@ -168,7 +188,7 @@ function App() {
         })}
         onAction={(action) => {
           if (action?.action === "resource_type") {
-            setSelectedResource(action.target);
+            //setSelectedResource(action.target);
           }
           setiskpo(false);
         }}

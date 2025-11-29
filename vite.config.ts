@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig, PluginOption } from "vite";
 import react from "@vitejs/plugin-react";
 
 // @ts-expect-error process is a nodejs global
@@ -6,7 +6,7 @@ const host = process.env.TAURI_DEV_HOST;
 
 // https://vite.dev/config/
 export default defineConfig(async () => ({
-  plugins: [react()],
+  plugins: [react(), reactDevTools()],
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   //
@@ -30,3 +30,24 @@ export default defineConfig(async () => ({
     },
   },
 }));
+
+const reactDevTools = (): PluginOption => {
+  return {
+    name: "react-devtools",
+    apply: "serve", // Only apply this plugin during development
+    transformIndexHtml(html) {
+      return {
+        html,
+        tags: [
+          {
+            tag: "script",
+            attrs: {
+              src: "http://localhost:8097",
+            },
+            injectTo: "head",
+          },
+        ],
+      };
+    },
+  };
+};

@@ -1,42 +1,28 @@
-import {
-  Box,
-  Flex,
-  Table,
-  Badge,
-  Text,
-  ScrollArea,
-  Tooltip,
-  TextField,
-  Code,
-  ContextMenu,
-} from "@radix-ui/themes";
+import { Box, Flex, Text, ScrollArea, TextField } from "@radix-ui/themes";
 import { useEffect, useRef, useState } from "react";
-import { useKeyPress } from "./App";
-import humanize from "@jsdevtools/humanize-anything";
 
 import {
   MantineReactTable,
   useMantineReactTable,
   type MRT_ColumnDef,
-  MRT_GlobalFilterTextInput,
-  MRT_ToggleFiltersButton,
 } from "mantine-react-table";
-import { RowType, discoverRows } from "./row-discovery";
+import { discoverRows } from "./row-discovery";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { formatKubeAge } from "./well-known-formatters";
 import { useResourceList } from "./subscriptions";
+import { useKubePathParams } from "./util/kube";
+import { useKeyPress } from "./App";
 
-export const ResourceTable = ({
-  resource,
+export const ResourceTable = () => {
+  const kubeParams = useKubePathParams();
+  return <ResourceTableInner kubeParams={kubeParams} />;
+};
+export const ResourceTableInner = ({
+  kubeParams,
 }: {
-  resource: {
-    kind: string;
-    group: string;
-    plural: string;
-    api_version: string;
-    version: string;
-  };
+  kubeParams: ReturnType<typeof useKubePathParams>;
 }) => {
+  const [searchTerm, setSearchTerm] = useState("");
   const ref = useRef<HTMLInputElement | null>(null);
   useKeyPress("/", () => {
     ref.current?.focus();
@@ -49,9 +35,8 @@ export const ResourceTable = ({
     },
     { noEffectWhileInTextInput: false }
   );
-  const [searchTerm, setSearchTerm] = useState("");
-  const { resources, lastEventTime } = useResourceList<any>(resource);
-  console.log(resources);
+  const { resources, lastEventTime } = useResourceList<any>(kubeParams);
+
   const [defaultRows, setDefaultRows] = useState<MRT_ColumnDef<any>[]>([
     {
       id: "metadata-name",
@@ -81,7 +66,9 @@ export const ResourceTable = ({
   useEffect(() => {
     (async () => {
       const discovered =
-        resources.length > 0 ? await discoverRows(resource, resources[0]) : [];
+        resources.length > 0
+          ? await discoverRows(kubeParams, resources[0])
+          : [];
       setDefaultRows([
         {
           id: "metadata-name",
@@ -106,8 +93,8 @@ export const ResourceTable = ({
           header: "Age",
           accessorFn: (row) => new Date(row.metadata?.creationTimestamp),
           filterVariant: "date-range",
-          Cell: ({ renderedCellValue }) => (
-            <>{formatKubeAge(renderedCellValue)}</>
+          Cell: ({ renderedCellValue, cell }) => (
+            <>{formatKubeAge(cell.getValue() as Date)}</>
           ),
         },
       ]);
@@ -124,11 +111,16 @@ export const ResourceTable = ({
   });
   return (
     <Flex direction="column" flexGrow={"1"}>
-      <Flex align="center" gap="4" data-tauri-drag-region>
+      <Flex
+        align="center"
+        gap="4"
+        data-tauri-drag-region
+        style={{ paddingTop: "16px", paddingBottom: "16px" }}
+      >
         <TextField.Root
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.currentTarget.value)}
-          ref={ref}
+          // ref={ref}
           placeholder="Search..."
         >
           <TextField.Slot>

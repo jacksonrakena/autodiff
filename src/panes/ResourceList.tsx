@@ -1,6 +1,8 @@
-import { Flex, ScrollArea, Box, Link, Text } from "@radix-ui/themes";
+import { Flex, ScrollArea, Box, Text } from "@radix-ui/themes";
 import { invoke } from "@tauri-apps/api/core";
 import { useState, useEffect, useMemo } from "react";
+import { Link } from "react-router";
+import { makeKubePath, useKubePathParams } from "../util/kube";
 
 type ApiResource = {
   kind: string;
@@ -14,13 +16,8 @@ type ApiGroup = {
   version: string;
   resources: ApiResource[];
 };
-export const ResourceList = ({
-  selectedResource,
-  onSelectedResourceChanged,
-}: {
-  selectedResource: ApiResource;
-  onSelectedResourceChanged: (changeTo: ApiResource) => void;
-}) => {
+export const ResourceList = () => {
+  const kubeParams = useKubePathParams();
   const [apiResources, setApiResources] = useState<ApiGroup[]>([]);
   useEffect(() => {
     (async () => {
@@ -39,83 +36,65 @@ export const ResourceList = ({
       if (a.name.length === 0) return -1;
       return a.name.localeCompare(b.name);
     });
-    return n.map((e) => {
-      if (!e.name) {
-        return {
-          ...e,
-          name: "Core",
-        };
-      }
-      return e;
-    });
+    return n;
   }, [apiResources]);
 
   return (
-    <Box
-      data-tauri-drag-region
-      style={{
-        borderRight: "1px solid var(--gray-3)",
-        paddingTop: "32px",
-      }}
+    <ScrollArea
+      type="always"
+      scrollbars="vertical"
+      style={{ height: "100%", paddingLeft: "8px", maxWidth: "350px" }}
     >
-      <ScrollArea
-        type="always"
-        scrollbars="vertical"
-        style={{ height: "100%" }}
+      {" "}
+      <Flex
+        direction="column"
+        style={{
+          marginRight: "16px",
+          fontSize: "14px",
+        }}
+        gap="4"
       >
-        {" "}
-        <Flex
-          direction="column"
-          style={{
-            marginRight: "32px",
-            fontSize: "14px",
-          }}
-          gap="4"
-        >
-          {filteredApiGroups.map((res) => (
-            <Box key={res.name}>
-              <Text
-                style={{
-                  color: "var(--gray-11)",
-                  fontSize: "13px",
-                }}
-              >
-                {res.name}
-              </Text>
-              <Flex direction={"column"}>
-                {res.resources.map((r) => (
+        {filteredApiGroups.map((res) => (
+          <Box key={res.name}>
+            <Text
+              style={{
+                color: "var(--gray-11)",
+                fontSize: "13px",
+              }}
+            >
+              {res.name}
+            </Text>
+            <Flex direction={"column"}>
+              {res.resources.map((r) => {
+                const route = makeKubePath({
+                  api_version: r.api_version,
+                  group: res.name,
+                  resource_plural: r.plural,
+                });
+                return (
                   <Link
-                    href="#"
                     key={r.kind}
                     style={{
                       color: "black",
+                      textDecoration: "unset",
                       backgroundColor:
-                        selectedResource.kind === r.kind &&
-                        selectedResource.group ===
-                          (res.name === "Core" ? "" : res.name)
+                        kubeParams.resource_plural === r.plural &&
+                        kubeParams.group === res.name
                           ? "var(--blue-3)"
                           : "transparent",
                       paddingLeft: "4px",
                       borderRadius: "4px",
                     }}
-                    onClick={() => {
-                      onSelectedResourceChanged({
-                        kind: r.kind,
-                        group: res.name === "Core" ? "" : res.name,
-                        version: res.version,
-                        plural: r.plural,
-                        api_version: r.api_version,
-                      });
-                    }}
+                    to={route}
                   >
                     {r.kind}
                   </Link>
-                ))}
-              </Flex>
-            </Box>
-          ))}
-        </Flex>
-      </ScrollArea>
-    </Box>
+                );
+              })}
+            </Flex>
+          </Box>
+        ))}
+      </Flex>
+    </ScrollArea>
   );
 };

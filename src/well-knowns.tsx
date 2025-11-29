@@ -9,7 +9,7 @@ export const WellKnownResources: {
     rows: MRT_ColumnDef<any>[];
   };
 } = {
-  "v1/pods": {
+  "/api/v1/pods": {
     rows: [
       {
         id: "ready",
@@ -32,76 +32,93 @@ export const WellKnownResources: {
           return <Badge color={color}>{`${ready}/${total}`}</Badge>;
         },
       },
-      // {
-      //   name: "Status",
-      //   help: "The overall phase of the pod.",
-      //   render: (item: V1Pod) => {
-      //     const status = item.status?.phase || "Unknown";
-      //     let color: "red" | "green" | "yellow" | "gray" = "gray";
-      //     if (status === "Running") color = "green";
-      //     else if (status === "Pending") color = "yellow";
-      //     else if (status === "Failed") color = "red";
-      //     return <Badge color={color}>{status}</Badge>;
-      //   },
-      // },
-      // {
-      //   name: "Restarts",
-      //   help: "The total number of container restarts for the pod.",
-      //   render: (item: V1Pod) => {
-      //     const restarts =
-      //       item.status?.containerStatuses
-      //         ?.map((e) => e.restartCount)
-      //         .reduce((a, b) => a + b, 0) || 0;
-      //     return <>{restarts}</>;
-      //   },
-      // },
-      // {
-      //   name: "Last Restart",
-      //   render: (item: V1Pod) => {
-      //     const restartTimes =
-      //       item.status?.containerStatuses
-      //         ?.map((cs) => cs.lastState?.terminated?.finishedAt)
-      //         .filter((t): t is string => t !== undefined)
-      //         .map((t) => new Date(t).getTime()) || [];
-      //     if (restartTimes.length === 0) {
-      //       return <>-</>;
-      //     }
-      //     return <>{formatKubeAge(new Date(Math.max(...restartTimes)))}</>;
-      //   },
-      // },
-      // {
-      //   name: "Last Restart Reason",
-      //   render: (item: V1Pod) => {
-      //     const restartReasons =
-      //       item.status?.containerStatuses
-      //         ?.map((cs) => cs.lastState?.terminated)
-      //         .filter((t) => !!t) ?? [];
-      //     if (restartReasons.length === 0) {
-      //       return <>-</>;
-      //     }
-      //     return (
-      //       <>
-      //         {restartReasons
-      //           .map((r) => `${r.reason} (${r.exitCode})`)
-      //           .join(", ")}
-      //       </>
-      //     );
-      //   },
-      // },
-      // {
-      //   name: "Node",
-      //   render: (item: V1Pod) => {
-      //     return <>{item.spec?.nodeName || "Unknown"}</>;
-      //   },
-      // },
+      {
+        id: "status",
+        header: "Status",
+        accessorFn: (item: V1Pod) => item.status?.phase || "Unknown",
+        Cell: ({ row }) => {
+          const status = row.original.status?.phase || "Unknown";
+          let color: "red" | "green" | "yellow" | "gray" = "gray";
+          if (status === "Running") color = "green";
+          else if (status === "Pending") color = "yellow";
+          else if (status === "Failed") color = "red";
+          return <Badge color={color}>{status}</Badge>;
+        },
+      },
+      {
+        id: "restarts",
+        header: "Restarts",
+        accessorFn: (item: V1Pod) =>
+          item.status?.containerStatuses
+            ?.map((e) => e.restartCount)
+            .reduce((a, b) => a + b, 0) || 0,
+      },
+      {
+        id: "lastRestart",
+        header: "Last Restart",
+        accessorFn: (item: V1Pod) => {
+          const restartTimes =
+            item.status?.containerStatuses
+              ?.map((cs) => cs.lastState?.terminated?.finishedAt)
+              .filter((t): t is string => t !== undefined)
+              .map((t) => new Date(t).getTime()) || [];
+          if (restartTimes.length === 0) return null;
+          return new Date(Math.max(...restartTimes));
+        },
+        Cell: ({ row }) => {
+          const restartTimes =
+            row.original.status?.containerStatuses
+              ?.map((cs) => cs.lastState?.terminated?.finishedAt)
+              .filter((t): t is string => t !== undefined)
+              .map((t) => new Date(t).getTime()) || [];
+          if (restartTimes.length === 0) {
+            return <>-</>;
+          }
+          return <>{formatKubeAge(new Date(Math.max(...restartTimes)))}</>;
+        },
+      },
+      {
+        id: "lastRestartReason",
+        header: "Last Restart Reason",
+        accessorFn: (item: V1Pod) => {
+          const restartReasons =
+            item.status?.containerStatuses
+              ?.map((cs) => cs.lastState?.terminated)
+              .filter((t) => !!t) ?? [];
+          return restartReasons.length > 0 ? restartReasons : null;
+        },
+        Cell: ({ row }) => {
+          const restartReasons =
+            row.original.status?.containerStatuses
+              ?.map((cs) => cs.lastState?.terminated)
+              .filter((t) => !!t) ?? [];
+          if (restartReasons.length === 0) {
+            return <>-</>;
+          }
+          return (
+            <>
+              {restartReasons
+                .map((r) => `${r.reason} (${r.exitCode})`)
+                .join(", ")}
+            </>
+          );
+        },
+      },
+      {
+        id: "node",
+        header: "Node",
+        accessorFn: (item: V1Pod) => item.spec?.nodeName || "Unknown",
+      },
     ],
   },
-  "v1/namespaces": {
+  "/api/v1/namespaces": {
     rows: [
       {
-        name: "Phase",
-        render: (item: any) => {
-          const phase = item.status?.phase || "Unknown";
+        id: "phase",
+        header: "Phase",
+        accessorFn: (item: any) => item.status?.phase || "Unknown",
+        Cell: ({ row }) => {
+          const phase = row.original.status?.phase || "Unknown";
           let color: "red" | "green" | "yellow" | "gray" = "gray";
           if (phase === "Active") color = "green";
           else if (phase === "Terminating") color = "yellow";

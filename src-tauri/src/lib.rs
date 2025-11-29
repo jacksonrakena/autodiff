@@ -5,7 +5,7 @@ use kube::api::DynamicObject;
 use kube::discovery::ApiGroup;
 use kube::runtime::watcher::Event;
 use kube::runtime::watcher;
-use kube::{Api, Client, Discovery};
+use kube::{Api, Client, Discovery, Resource};
 use rand::SeedableRng;
 use serde::Serialize;
 use std::collections::HashMap;
@@ -58,10 +58,8 @@ async fn stop_listen_task(
 async fn start_listening(
     state: CommandGlobalState<'_>,
     group: String,
-    version: String,
     api_version: String,
-    kind: String,
-    plural: String,
+    resource_plural: String,
     subscription_id: i32,
     channel: Channel<ResourceListenEvent>
 ) -> Result<i32, String> {
@@ -69,10 +67,10 @@ async fn start_listening(
 
     let ar = kube::discovery::ApiResource {
         group,
-        version,
         api_version,
-        kind,
-        plural,
+        plural: resource_plural,
+        version: "".to_string(),
+        kind: "".to_string(),
     };
     let api = Api::<DynamicObject>::all_with(state.kube_client.clone(), &ar);
     let wc = watcher::Config::default();
@@ -87,6 +85,7 @@ async fn start_listening(
                 Ok(Some(p)) => {
                     match p {
                         Event::InitApply(e) => {
+                            eprintln!("[{}] InitApply event received", subscription_id);
                             let _ = channel.send(
                                 ResourceListenEvent::InitApply {
                                     resource: serde_json::to_value(e).unwrap(),
@@ -94,6 +93,7 @@ async fn start_listening(
                             );
                         },
                         Event::Apply(e) => {
+                            eprintln!("[{}] Apply event received", subscription_id);
                             let _ = channel.send(
                                 ResourceListenEvent::Apply {
                                     resource: serde_json::to_value(e).unwrap(),
@@ -101,6 +101,7 @@ async fn start_listening(
                             );
                         },
                         Event::Delete(e) => {
+                            eprintln!("[{}] Delete event received", subscription_id);
                             let _ = channel.send(
                                 ResourceListenEvent::Delete {
                                     resource: serde_json::to_value(e).unwrap(),
@@ -125,7 +126,7 @@ async fn start_listening(
             }
         }
     });
-    eprintln!("[{}] Started task with handle {} ({}/{}/{} {})", subscription_id, join_handle.id(), ar.group, ar.version, ar.kind, ar.plural);
+    eprintln!("[{}] Started task with handle {} ({})", subscription_id, join_handle.id(), DynamicObject::url_path(&ar, None));
     state.task_map.insert(subscription_id, join_handle);
     Ok(subscription_id)
 }
@@ -155,6 +156,7 @@ impl XApiGroup {
                     kind: res.0.kind.clone(),
                     plural: res.0.plural.clone(),
                     api_version: res.0.api_version.clone(),
+
                 })
                 .collect(),
         }
