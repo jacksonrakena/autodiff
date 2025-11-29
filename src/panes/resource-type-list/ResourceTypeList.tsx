@@ -2,7 +2,8 @@ import { Flex, ScrollArea, Box, Text } from "@radix-ui/themes";
 import { invoke } from "@tauri-apps/api/core";
 import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router";
-import { makeKubePath, useKubePathParams } from "../util/kube";
+import { useKubePathParams } from "../../util/kube/routes";
+import { makeKubePath } from "../../util/kube/routes";
 
 type ApiResource = {
   kind: string;
@@ -16,7 +17,7 @@ type ApiGroup = {
   version: string;
   resources: ApiResource[];
 };
-export const ResourceList = () => {
+export const ResourceTypeList = () => {
   const kubeParams = useKubePathParams();
   const [apiResources, setApiResources] = useState<ApiGroup[]>([]);
   useEffect(() => {

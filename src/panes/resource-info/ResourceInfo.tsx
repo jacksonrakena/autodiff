@@ -1,20 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { makeKubePath, useKubePathParams } from "../util/kube";
-import { invoke } from "@tauri-apps/api/core";
-import { useAtom, useAtomValue } from "jotai";
-import {
-  kubernetesResourceAtom,
-  useKubernetesResourceCache,
-} from "../util/clientstate";
-import { Box, Flex, Heading, TabNav, Tabs, Text } from "@radix-ui/themes";
-import {
-  Link,
-  NavLink,
-  Outlet,
-  useInRouterContext,
-  useMatch,
-} from "react-router";
-import { useCachedResource } from "./utils";
+import React from "react";
+
+import { makeKubePath, useKubePathParams } from "../../util/kube/routes";
+import { Flex, Heading, TabNav, Text } from "@radix-ui/themes";
+import { NavLink, Outlet, useMatch } from "react-router";
+import { useCachedResource } from "../../util/kube/cache";
 
 export const ResourceInfo = () => {
   const kubePathComponents = useKubePathParams();
@@ -26,8 +15,6 @@ export const ResourcePage = ({
 }: {
   kubePathComponents: ReturnType<typeof useKubePathParams>;
 }) => {
-  const selfRoute = makeKubePath(kubePathComponents);
-  //const cache = useKubernetesResourceCache(makeKubePath(kubePathComponents));
   const resource = useCachedResource(kubePathComponents);
 
   return (

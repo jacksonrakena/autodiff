@@ -1,10 +1,11 @@
 import { Box, Badge, Text } from "@radix-ui/themes";
-import { http } from "./App";
+import { http } from "../../../App";
 import { V1CustomResourceDefinition } from "@kubernetes/client-node";
 import * as jpath from "jsonpath-plus";
-import { WellKnownResources } from "./well-knowns";
+import { WellKnownTableLayouts } from "./well-knowns";
 import { MRT_ColumnDef } from "mantine-react-table";
-import { KubeUrlComponents, makeKubePath } from "./util/kube";
+import { makeKubePath } from "../../../util/kube/routes";
+import { KubeUrlComponents } from "../../../util/kube/routes";
 export type RowType = {
   name: string;
   help?: string;
@@ -13,8 +14,8 @@ export const discoverRows = async (
   resource: KubeUrlComponents,
   prototype: any
 ): Promise<MRT_ColumnDef<any>[]> => {
-  if (WellKnownResources.hasOwnProperty(makeKubePath(resource))) {
-    return WellKnownResources[makeKubePath(resource)].rows;
+  if (WellKnownTableLayouts.hasOwnProperty(makeKubePath(resource))) {
+    return WellKnownTableLayouts[makeKubePath(resource)].columns;
   }
   const rows: MRT_ColumnDef<any>[] = [];
   // if (resource.group) {

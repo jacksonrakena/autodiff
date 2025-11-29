@@ -2,7 +2,9 @@ import { Callout, Code, Dialog, Flex, TextField, Text } from "@radix-ui/themes";
 import { ResourceType } from "../types";
 import { useEffect, useMemo, useState } from "react";
 import { InfoCircledIcon, MagnifyingGlassIcon } from "@radix-ui/react-icons";
-import { http, useKeyPress } from "../App";
+
+import { useKeyPress } from "../util/keybinds";
+import { http } from "../util/kube/requests";
 
 const tryResolveResourceType = (
   word: string,
@@ -78,15 +80,15 @@ export const TypeSwitcher = ({
   onAction: (action: ComputeState) => void;
   resourceTypes: ResourceType[];
 }) => {
-  const [termv, settermv] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [computed, setComputed] = useState<ComputeState>(null);
   useEffect(() => {
     (async () => {
       setComputed({ action: "loading" });
-      const result = await resolve(termv, resourceTypes);
+      const result = await resolve(searchTerm, resourceTypes);
       setComputed(result);
     })();
-  }, [termv, resourceTypes]);
+  }, [searchTerm, resourceTypes]);
   useKeyPress(
     "Enter",
     () => {
@@ -107,13 +109,13 @@ export const TypeSwitcher = ({
                 if (e.currentTarget.value === "") {
                   onClose();
                 } else {
-                  settermv(e.currentTarget.value);
+                  setSearchTerm(e.currentTarget.value);
                 }
               }}
               onBlur={() => {
-                settermv("");
+                setSearchTerm("");
               }}
-              value={termv}
+              value={searchTerm}
             >
               <TextField.Slot>
                 <MagnifyingGlassIcon height="16" width="16" />

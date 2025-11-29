@@ -5,17 +5,16 @@ import { Theme } from "@radix-ui/themes";
 import "./main.css";
 import {
   createBrowserRouter,
-  createMemoryRouter,
   isRouteErrorResponse,
   useRouteError,
 } from "react-router";
 import { RouterProvider } from "react-router/dom";
-import { ResourceTable } from "./ResourceTable";
-import { ResourceInfo } from "./resourceInfo/ResourceInfo";
+import { ResourceTable } from "./panes/resource-table/ResourceTable";
+import { ResourceInfo } from "./panes/resource-info/ResourceInfo";
 import { Provider } from "jotai";
-import { YAMLPane } from "./resourceInfo/panes/global/YAMLPane";
-import { OverviewPane } from "./resourceInfo/panes/global/OverviewPane";
-import { EventsPane } from "./resourceInfo/panes/global/EventsPane";
+import { YAMLPane } from "./panes/resource-info/panes/global/YAMLPane";
+import { OverviewPane } from "./panes/resource-info/panes/global/OverviewPane";
+import { EventsPane } from "./panes/resource-info/panes/global/EventsPane";
 
 const router = createBrowserRouter([
   {

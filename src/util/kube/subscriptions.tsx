@@ -1,7 +1,8 @@
 import { Channel, invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
-import { makeKubePath, type KubeUrlComponents } from "./util/kube";
-import { useKubernetesResourceCache } from "./util/clientstate";
+import { makeKubePath } from "./routes";
+import { type KubeUrlComponents } from "./routes";
+import { useKubernetesResourceCache } from "./cache";
 import { useAtom, useSetAtom } from "jotai";
 
 export interface ResourceWithId {

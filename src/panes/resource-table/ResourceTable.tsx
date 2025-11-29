@@ -13,12 +13,13 @@ import {
   useMantineReactTable,
   type MRT_ColumnDef,
 } from "mantine-react-table";
-import { discoverRows } from "./row-discovery";
+import { discoverRows } from "./layouts/autodiscovery";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
-import { formatKubeAge } from "./well-known-formatters";
-import { useResourceList } from "./subscriptions";
-import { makeKubePath, useKubePathParams } from "./util/kube";
-import { useKeyPress } from "./App";
+import { formatKubeAge } from "../../util/well-known-formatters";
+import { useResourceList } from "../../util/kube/subscriptions";
+import { useKubePathParams } from "../../util/kube/routes";
+import { makeKubePath } from "../../util/kube/routes";
+import { useKeyPress } from "../../util/keybinds";
 import { NavLink } from "react-router";
 
 export const ResourceTable = () => {
@@ -50,25 +51,14 @@ export const ResourceTableInner = ({
       id: "metadata-name",
       header: "Name",
       accessorFn: (row) => row.metadata?.name,
-      Cell: ({ renderedCellValue, row }) => (
-        <Flex direction="column">
-          {/* <Box>
-              <Code>{item.metadata?.name ?? "unknown"}</Code>
-            </Box>
-
-            {item.metadata?.namespace && (
-              <Text>{item.metadata?.namespace}</Text>
-            )} */}
-          {renderedCellValue}
-        </Flex>
-      ),
+      Cell: ({ renderedCellValue }) => <>{renderedCellValue}</>,
     },
     {
       id: "metadata-age",
       header: "Age",
       accessorFn: (row) => new Date(row.metadata?.creationTimestamp),
       filterVariant: "date-range",
-      Cell: ({ renderedCellValue }) => <>{formatKubeAge(renderedCellValue)}</>,
+      Cell: ({ cell }) => <>{formatKubeAge(cell.getValue() as Date)}</>,
     },
   ]);
   useEffect(() => {
@@ -107,9 +97,7 @@ export const ResourceTableInner = ({
           header: "Age",
           accessorFn: (row) => new Date(row.metadata?.creationTimestamp),
           filterVariant: "date-range",
-          Cell: ({ renderedCellValue, cell }) => (
-            <>{formatKubeAge(cell.getValue() as Date)}</>
-          ),
+          Cell: ({ cell }) => <>{formatKubeAge(cell.getValue() as Date)}</>,
           size: 80,
         },
       ]);

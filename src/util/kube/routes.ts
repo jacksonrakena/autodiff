@@ -1,7 +1,6 @@
 import { useParams } from "react-router";
 
 export type KubeGroup = "api" | "apis";
-
 export interface KubeUrlComponents {
   // resource namespace
   namespace?: string;
@@ -19,9 +18,7 @@ export interface KubeUrlComponents {
 
   // plural form of resource, i.e. "pods" or "mutatingwebhookconfigurations"
   resource_plural: string;
-}
-
-/**
+} /**
  * returns a kube api path for the given components
  *
  * examples:
@@ -30,24 +27,24 @@ export interface KubeUrlComponents {
  *
  * /apis/admissionregistration.k8s.io/v1/mutatingwebhookconfigurations - { group: "admissionregistration.k8s.io", api_version: "admissionregistration.k8s.io/v1", resource_plural: "mutatingwebhookconfigurations" }
  */
+
 export const makeKubePath = (components: KubeUrlComponents) => {
   return `/${components.group ? "apis" : "api"}/${components.api_version}/${components.namespace ? `namespaces/${components.namespace}/` : ""}${components.resource_plural}${components.name ? `/${components.name}` : ""}`;
 };
-
-type KubeCoreGroupPathParams = {
+export type KubeCoreGroupPathParams = {
   api_version: string;
   resource_plural: string;
   name?: string;
   namespace?: string;
 };
-type KubeApisGroupPathParams = {
+export type KubeApisGroupPathParams = {
   api_group_domain: string;
   api_group_version: string;
   resource_plural: string;
   name?: string;
   namespace?: string;
 };
-type KubePathParams = KubeCoreGroupPathParams | KubeApisGroupPathParams;
+export type KubePathParams = KubeCoreGroupPathParams | KubeApisGroupPathParams;
 export const useKubePathParams = (): KubeUrlComponents => {
   const params = useParams() as KubePathParams;
   if (params.hasOwnProperty("api_group_domain")) {

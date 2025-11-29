@@ -1,16 +1,15 @@
 import { V1Pod } from "@kubernetes/client-node";
-import { RowType } from "./row-discovery";
 import { Badge } from "@radix-ui/themes";
-import { formatKubeAge } from "./well-known-formatters";
+import { formatKubeAge } from "../../../util/well-known-formatters";
 import { MRT_ColumnDef } from "mantine-react-table";
 
-export const WellKnownResources: {
+export const WellKnownTableLayouts: {
   [key: string]: {
-    rows: MRT_ColumnDef<any>[];
+    columns: MRT_ColumnDef<any>[];
   };
 } = {
   "/api/v1/pods": {
-    rows: [
+    columns: [
       {
         id: "ready",
         header: "Ready",
@@ -23,7 +22,7 @@ export const WellKnownResources: {
         },
         //help: 'The number of ready containers for the pod. A pod is considered "Ready" when all containers are ready.',
 
-        Cell: ({ renderedCellValue, row }) => {
+        Cell: ({ row }) => {
           const total = row.original.status?.containerStatuses?.length || 0;
           const ready =
             row.original.status?.containerStatuses?.filter((cs) => cs.ready)
@@ -121,7 +120,7 @@ export const WellKnownResources: {
     ],
   },
   "/api/v1/namespaces": {
-    rows: [
+    columns: [
       {
         id: "phase",
         header: "Phase",

@@ -1,10 +1,11 @@
 import { Editor } from "@monaco-editor/react";
-import { useKubePathParams } from "../../../util/kube";
-import { useCachedResource } from "../../utils";
+
+import { useCachedResource } from "../../../../util/kube/cache";
 import { convert } from "@catalystic/json-to-yaml";
 import { useMemo, useState } from "react";
 import { Box, Flex, Kbd, Switch, Text } from "@radix-ui/themes";
-import { useKeyPress } from "../../../App";
+import { useKeyPress } from "../../../../util/keybinds";
+import { useKubePathParams } from "../../../../util/kube/routes";
 
 export const YAMLPane = () => {
   const kubePathComponents = useKubePathParams();
