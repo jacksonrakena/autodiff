@@ -25,8 +25,9 @@ export const WellKnownTableLayouts: {
         Cell: ({ row }) => {
           const total = row.original.status?.containerStatuses?.length || 0;
           const ready =
-            row.original.status?.containerStatuses?.filter((cs) => cs.ready)
-              .length || 0;
+            row.original.status?.containerStatuses?.filter(
+              (cs: any) => cs.ready
+            ).length || 0;
           const color = total === ready && total > 0 ? "green" : "red";
           return <Badge color={color}>{`${ready}/${total}`}</Badge>;
         },
@@ -39,7 +40,7 @@ export const WellKnownTableLayouts: {
           item.metadata?.deletionTimestamp
             ? "Terminating"
             : item.status?.phase || "Unknown",
-        Cell: ({ row, cell }) => {
+        Cell: ({ cell }) => {
           const status = (cell.getValue() as string) || "Unknown";
           let color: "red" | "green" | "yellow" | "gray" = "gray";
           if (status === "Running") color = "green";
@@ -66,17 +67,17 @@ export const WellKnownTableLayouts: {
           const restartTimes =
             item.status?.containerStatuses
               ?.map((cs) => cs.lastState?.terminated?.finishedAt)
-              .filter((t): t is string => t !== undefined)
-              .map((t) => new Date(t).getTime()) || [];
+              .filter((t: any): t is string => t !== undefined)
+              .map((t) => new Date(t as any as string).getTime()) || [];
           if (restartTimes.length === 0) return null;
           return new Date(Math.max(...restartTimes));
         },
         Cell: ({ row }) => {
           const restartTimes =
             row.original.status?.containerStatuses
-              ?.map((cs) => cs.lastState?.terminated?.finishedAt)
-              .filter((t): t is string => t !== undefined)
-              .map((t) => new Date(t).getTime()) || [];
+              ?.map((cs: any) => cs.lastState?.terminated?.finishedAt)
+              .filter((t: any): t is string => t !== undefined)
+              .map((t: any) => new Date(t).getTime()) || [];
           if (restartTimes.length === 0) {
             return <></>;
           }
@@ -97,15 +98,15 @@ export const WellKnownTableLayouts: {
         Cell: ({ row }) => {
           const restartReasons =
             row.original.status?.containerStatuses
-              ?.map((cs) => cs.lastState?.terminated)
-              .filter((t) => !!t) ?? [];
+              ?.map((cs: any) => cs.lastState?.terminated)
+              .filter((t: any) => !!t) ?? [];
           if (restartReasons.length === 0) {
             return <></>;
           }
           return (
             <>
               {restartReasons
-                .map((r) => `${r.reason} (${r.exitCode})`)
+                .map((r: any) => `${r.reason} (${r.exitCode})`)
                 .join(", ")}
             </>
           );

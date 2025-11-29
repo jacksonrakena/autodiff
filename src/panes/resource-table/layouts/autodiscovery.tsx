@@ -1,20 +1,17 @@
 import { Box, Badge, Text, Tooltip } from "@radix-ui/themes";
-import { http } from "../../../App";
 import { V1CustomResourceDefinition } from "@kubernetes/client-node";
 import * as jpath from "jsonpath-plus";
 import { WellKnownTableLayouts } from "./well-knowns";
 import { MRT_ColumnDef } from "mantine-react-table";
 import { makeKubePath } from "../../../util/kube/routes";
 import { KubeUrlComponents } from "../../../util/kube/routes";
-import { invoke } from "@tauri-apps/api/core";
 import { detailResource } from "../../../util/kube/requests";
 export type RowType = {
   name: string;
   help?: string;
 } & ({ path: string } | { render: (item: any) => React.ReactNode });
 export const discoverRows = async (
-  resource: KubeUrlComponents,
-  prototype: any
+  resource: KubeUrlComponents
 ): Promise<MRT_ColumnDef<any>[]> => {
   if (WellKnownTableLayouts.hasOwnProperty(makeKubePath(resource))) {
     return WellKnownTableLayouts[makeKubePath(resource)].columns;

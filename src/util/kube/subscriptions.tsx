@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { makeKubePath } from "./routes";
 import { type KubeUrlComponents } from "./routes";
 import { useKubernetesResourceCache } from "./cache";
-import { useAtom, useSetAtom } from "jotai";
+import { useSetAtom } from "jotai";
 
 export interface ResourceWithId {
   metadata: {

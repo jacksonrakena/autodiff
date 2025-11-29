@@ -1,6 +1,6 @@
 import { Callout, Code, Dialog, Flex, TextField, Text } from "@radix-ui/themes";
 import { ResourceType } from "../types";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { InfoCircledIcon, MagnifyingGlassIcon } from "@radix-ui/react-icons";
 
 import { useKeyPress } from "../util/keybinds";

@@ -6,7 +6,6 @@ import {
   TextField,
   Tooltip,
   ContextMenu,
-  Table,
 } from "@radix-ui/themes";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -51,9 +50,7 @@ export const ResourceTableInner = ({
   useEffect(() => {
     (async () => {
       const discovered =
-        resources.length > 0
-          ? await discoverRows(kubeParams, resources[0])
-          : [];
+        resources.length > 0 ? await discoverRows(kubeParams) : [];
       setAsyncColumns(discovered);
     })();
   }, [resources]);
