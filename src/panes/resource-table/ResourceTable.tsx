@@ -5,22 +5,24 @@ import {
   ScrollArea,
   TextField,
   Tooltip,
+  ContextMenu,
+  Table,
 } from "@radix-ui/themes";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   MantineReactTable,
+  MRT_Row,
+  MRT_TableBodyRow,
+  MRT_TableInstance,
   useMantineReactTable,
   type MRT_ColumnDef,
 } from "mantine-react-table";
 import { discoverRows } from "./layouts/autodiscovery";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
-import { formatKubeAge } from "../../util/well-known-formatters";
 import { useResourceList } from "../../util/kube/subscriptions";
 import { useKubePathParams } from "../../util/kube/routes";
-import { makeKubePath } from "../../util/kube/routes";
 import { useKeyPress } from "../../util/keybinds";
-import { NavLink } from "react-router";
 import { Builtins } from "./layouts/builtins";
 
 export const ResourceTable = () => {
@@ -59,10 +61,22 @@ export const ResourceTableInner = ({
     })();
   }, [resources]);
   const rows = useMemo(
-    () => [...Builtins.Prepended, ...asyncColumns, ...Builtins.Appended],
+    () => [
+      ...Builtins(kubeParams).Prepended,
+      ...asyncColumns,
+      ...Builtins(kubeParams).Appended,
+    ],
     [asyncColumns]
   );
 
+  const CustomTableRow = (props) => {
+    return (
+      <>
+        bingus
+        <MRT_TableBodyRow {...props} />
+      </>
+    );
+  };
   const table = useMantineReactTable({
     columns: rows,
     data: resources,
@@ -75,6 +89,11 @@ export const ResourceTableInner = ({
     enableColumnResizing: true,
     enableRowVirtualization: true,
     enableBottomToolbar: false,
+    mantineTableProps: {
+      striped: true,
+    },
+    enableFullScreenToggle: false,
+    //enableHiding: false,
   });
   useEffect(() => {
     if (resources.length > 0) {
@@ -121,8 +140,36 @@ export const ResourceTableInner = ({
           </Tooltip>
         </Box>
       </Flex>
+      <ContextMenu.Root>
+        <ContextMenu.Trigger>
+          <Box>test</Box>
+        </ContextMenu.Trigger>
+        <ContextMenu.Content>
+          <ContextMenu.Item>Describe</ContextMenu.Item>
+          <ContextMenu.Item>Edit</ContextMenu.Item>
+          <ContextMenu.Item>Show</ContextMenu.Item>
+          <ContextMenu.Sub>
+            <ContextMenu.SubTrigger>Jump to</ContextMenu.SubTrigger>
+            <ContextMenu.SubContent>
+              <ContextMenu.Item>Owner (StatefulSet)</ContextMenu.Item>
+              <ContextMenu.Item>Node</ContextMenu.Item>
+            </ContextMenu.SubContent>
+          </ContextMenu.Sub>
+          <ContextMenu.Separator />
+          <ContextMenu.Item>Logs</ContextMenu.Item>
+          <ContextMenu.Item>Attach</ContextMenu.Item>
+          <ContextMenu.Item>Shell</ContextMenu.Item>
+          <ContextMenu.Separator />
+          <ContextMenu.Item>Port forward</ContextMenu.Item>
+          <ContextMenu.Item>Copy files</ContextMenu.Item>
+          <ContextMenu.Separator />
+
+          <ContextMenu.Item color="red">Delete</ContextMenu.Item>
+        </ContextMenu.Content>
+      </ContextMenu.Root>
       <ScrollArea>
         <MantineReactTable table={table} />
+
         {/* <Table.Root size="1">
           <Table.Header>
             <Table.Row>
