@@ -39,7 +39,7 @@ export const executeSearch = (groups: ApiGroup[], query: string) => {
   return order.map((e) => {
     const index = info.idx[e];
     const resource = flatList[index];
-    return { resource, info: info.ranges[e] };
+    return { resource, info: info.ranges[e] as [number, number] | undefined };
   });
 };
 export const ResourceTypeList = () => {
@@ -66,12 +66,15 @@ export const ResourceTypeList = () => {
     return n;
   }, [apiResources]);
 
+  type SearchGroup = Omit<ApiGroup, "resources"> & {
+    resources: (ApiResource & { ranges?: [number, number] })[];
+  };
   const searchedResources = useMemo(() => {
     if (search.trim() === "") return filteredApiGroups;
     const results = executeSearch(filteredApiGroups, search);
     if (!results) return [];
 
-    return results.reduce<ApiGroup[]>((acc, curr) => {
+    return results.reduce<SearchGroup[]>((acc, curr) => {
       let group = acc.find((g) => g.name === curr.resource.group.name);
       if (!group) {
         group = {
@@ -84,7 +87,7 @@ export const ResourceTypeList = () => {
       group.resources.push({ ...curr.resource.resource, ranges: curr.info });
       return acc;
     }, []);
-  }, [search, filteredApiGroups]);
+  }, [search, filteredApiGroups]) as SearchGroup[];
 
   return (
     <>

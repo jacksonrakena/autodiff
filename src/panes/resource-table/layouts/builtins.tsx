@@ -1,6 +1,4 @@
 import { MRT_ColumnDef } from "mantine-react-table";
-import { formatKubeAge } from "../../../util/well-known-formatters";
-import { NavLink } from "react-router";
 import { KubeUrlComponents, makeKubePath } from "../../../util/kube/routes";
 import { WrappedLink } from "../../../util/platform";
 import { TooltipKubeAge } from "../../../components/TooltipKubeAge";

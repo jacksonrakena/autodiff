@@ -1,11 +1,6 @@
 import {
-  Avatar,
-  Box,
   Flex,
-  Heading,
   HoverCard,
-  Tooltip,
-  Text,
 } from "@radix-ui/themes";
 import { formatKubeAge } from "../util/well-known-formatters";
 import { format } from "date-fns";

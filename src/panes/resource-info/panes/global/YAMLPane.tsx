@@ -1,6 +1,5 @@
 import { Editor } from "@monaco-editor/react";
 
-import { useCachedResource } from "../../../../util/kube/cache";
 import { convert } from "@catalystic/json-to-yaml";
 import { useContext, useMemo, useState } from "react";
 import { Box, Flex, Kbd, Switch, Text } from "@radix-ui/themes";

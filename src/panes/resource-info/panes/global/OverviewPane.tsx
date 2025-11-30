@@ -8,11 +8,7 @@ import {
   Popover,
   Table,
 } from "@radix-ui/themes";
-import { useCachedResource } from "../../../../util/kube/cache";
-import { useKubePathParams } from "../../../../util/kube/routes";
 import { makeKubePath } from "../../../../util/kube/routes";
-import { formatKubeAge } from "../../../../util/well-known-formatters";
-import { NavLink } from "react-router";
 import { WrappedLink } from "../../../../util/platform";
 import { TooltipKubeAge } from "../../../../components/TooltipKubeAge";
 import { useContext } from "react";

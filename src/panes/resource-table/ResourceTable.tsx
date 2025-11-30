@@ -2,10 +2,8 @@ import {
   Box,
   Flex,
   Text,
-  ScrollArea,
   TextField,
   Tooltip,
-  ContextMenu,
 } from "@radix-ui/themes";
 import { useEffect, useMemo, useRef, useState } from "react";
 

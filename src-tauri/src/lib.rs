@@ -242,6 +242,8 @@ struct XApiResource {
     kind: String,
     plural: String,
     api_version: String,
+    version: String,
+    group: String,
 }
 
 #[derive(Debug, serde::Serialize)]
@@ -262,7 +264,8 @@ impl XApiGroup {
                     kind: res.0.kind.clone(),
                     plural: res.0.plural.clone(),
                     api_version: res.0.api_version.clone(),
-
+                    version: res.0.version,
+                    group: res.0.group.clone(),
                 })
                 .collect(),
         }

@@ -59,6 +59,7 @@ const StatusSection = () => {
         <DropdownMenu.Root>
           <DropdownMenu.Trigger>
             <Button variant="ghost" size="3" color="gray" highContrast>
+              {/* @ts-expect-error */}
               {currentConfig?.["current-context"]}
               <DropdownMenu.TriggerIcon />
             </Button>

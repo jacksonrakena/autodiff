@@ -2,7 +2,6 @@ import {
   Avatar,
   Box,
   Button,
-  Card,
   Flex,
   IconButton,
   RadioCards,
@@ -14,7 +13,7 @@ import { useEffect, useMemo, useState } from "react";
 import { safeInvoke } from "./util/kube/requests";
 import { KubeConfig } from "@kubernetes/client-node";
 import { useNavigate } from "react-router";
-import { useAtom, useSetAtom } from "jotai";
+import { useSetAtom } from "jotai";
 import { currentConfigAtom } from "./util/kube/context";
 
 export const DICEBEAR_STYLE = "glass";
@@ -32,13 +31,8 @@ export const Home = () => {
   }, []);
 
   const setCurrentConfig = useSetAtom(currentConfigAtom);
-  const kubeUsers = useMemo(() => contexts.flatMap((e) => e.users), [contexts]);
   const kubeContexts = useMemo(
     () => contexts.flatMap((e) => e.contexts),
-    [contexts]
-  );
-  const kubeClusters = useMemo(
-    () => contexts.flatMap((e) => e.clusters),
     [contexts]
   );
 
@@ -118,6 +112,7 @@ export const Home = () => {
                             {ctx.name}
                           </Text>
                           <Text as="div" size="2" color="gray">
+                            {/* @ts-expect-error */}
                             {ctx.context.user}
                           </Text>
                         </Box>
