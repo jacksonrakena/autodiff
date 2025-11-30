@@ -1,34 +1,84 @@
-![logo](src-tauri/icons/128x128@2x.png)
+<div align="center">
+<img src="src-tauri/icons/128x128@2x.png" alt="logo" width="128">
+
 # Kuboid
-A user interface designed for Kubernetes cluster administrators operating clusters at scale. Heavily inspired by `k9s`, the best Kubernetes client out there.
 
-Designing mostly around my needs as a Kubernetes engineer at a large organisation, focusing on:
-- Quick traversal between namespaces, resource types, and resources
-  - Keybinds essential, minimal mouse usage (except for deep inspection)
-- Performance at scale is critical
-  - 5,000+ pods, 20+ namespaces, lots of custom resource definitions, custom operators, ArgoCD, Kargo, etc
-  - Designed with relative namespace isolation in mind
-- Advanced control over how Kuboid connects to Kubernetes
-  - Proxy server, proxy script to generate credentials (common in enterprise setups)
-- Moving beyond limitations in `k9s`
-  - [ ] Powerful manipulation of logs
-  - [ ] Tabs
-  - [ ] Click-to-sort 
+A GUI companion for managing Kubernetes clusters at scale.
 
-### Architecture
-- Tauri app (Rust + System WebView), good trade-off of performance while easily cross-platform and quick to develop
-- Backend is Rust
-  - Uses `kube` package to pass calls to Kubernetes
-- Frontend is React
-  - Radix UI with custom changes to make minimal and clean interface
-  - Recoil for caching resources on client
-- Frontend passes HTTP path and query through to backend which proxies it to Kubernetes control plane
-  - There are security concerns here, in the future the backend will have to do some validation
-  - In the future I would like the backend to be doing caching (possibly using `kube::Discovery`)
-  - Probably move towards strictly defined command calls over `exec_raw`
+Heavily inspired by [k9s](https://k9scli.io/), a tool I use every day at work and love dearly.
+</div>
 
-### Screenshots and videos
+## Principles
+
+Kuboid's development is driven by my own needs as a Kubernetes engineer at a large organisation, with some key principles guiding development:
+- Efficiency and speed for program and user is critical
+  - Quick traversal between namespaces, resource types, and resources
+  - Keybind-driven workflow (with a `k9s`-like keymap) with minimal mouse usage (except when necessary)
+  - Design with scale first - 5,000+ pods, 20+ namespaces, CRDs, operators, ArgoCD, Kargo, etc.
+- Support for difficult and complex kubeconfig setups
+  - Running scripts to generate kubeconfigs, etc (commonly used in enterprise Kube)
+  - Namespace isolation
+- Get out of the way
+  - Always back out to YAML when user interface paradigms fail
+
+## Feature roadmap
+- **Connectivity**
+  - [x] Select from available contexts (from inferring)
+  - [ ] Generate kubeconfigs from script
+  - [ ] Distinguish clusters from various cloud providers
+  - [ ] Multi-cluster composition
+  - [ ] Proxy support
+- **Resource table**
+  - [x] Discover columns from CRD `additionalPrinterColumns`
+  - [ ] Custom column layouts
+  - [x] Click-to-sort
+  - Well known resource types should have dedicated table layouts:
+    - [x] Pod
+    - [ ] PVC
+    - [ ] PV
+    - [ ] Service
+    - [ ] Secret/ConfigMap
+    - [ ] Node
+    - [ ] Namespace(?)
+- **Resource view**
+  - [x] Overview
+  - [x] YAML view
+    - [x] Hide managed fields
+    - [x] Auto-decode secrets 
+    - [ ] Edit
+  - [ ] Events view
+  - Well-known resource types:
+    - Pod
+      - [ ] View container info on pane
+      - [ ] Logs on each container (+ service)
+      - [ ] Port forwarding
+      - [ ] Exec into pod
+      - [ ] Copy to/from pod
+  
+
+## Architecture
+
+Kuboid is a Tauri app with a Rust backend and React frontend. This provides a good balance of easy cross-platform development with acceptable tradeoffs in efficiency.
+
+**Backend** (Rust)
+- Uses `kube` package for Kubernetes API communication
+- Performs various querying operations and serves data to frontend
+- Manages kubeconfig discovery, context selection, and authentication
+- Caches resource types with `kube::Discovery`
+
+**Frontend** (React)
+- Radix UI with some minor styling changes
+- Recoil for managing global state, including the Kubernetes resource cache
+
+
+## Screenshots
+
 ![pods](readme/pods.png)
+![pod-detail](readme/pod-detail.png)
 
-### Copyright
-MIT. Go support [k9s](https://k9scli.io/), genuinely one of the best tools ever made in the Kubernetes world.
+
+## License
+
+&copy; 2025 Jackson Rakena, MIT License
+
+Please go support [k9s](https://k9scli.io/) — genuinely one of the best tools ever made in the Kubernetes world.
