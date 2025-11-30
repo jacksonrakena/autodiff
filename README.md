@@ -73,7 +73,8 @@ Kuboid is a Tauri app with a Rust backend and React frontend. This provides a go
 
 ## Screenshots
 
-![pods](readme/pods.png)
+![welcome screen](readme/welcome-screen.png)
+![pods-list](readme/pods.png)
 ![pod-detail](readme/pod-detail.png)
 
 
