@@ -16,6 +16,7 @@
     "@emotion/react": "^11.14.0",
     "@jsdevtools/humanize-anything": "^1.1.1",
     "@kubernetes/client-node": "^1.4.0",
+    "@leeoniya/ufuzzy": "^1.0.19",
     "@mantine/core": "6.0.21",
     "@mantine/dates": "6.0.21",
     "@mantine/hooks": "6.0.21",
