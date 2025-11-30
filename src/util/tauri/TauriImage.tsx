@@ -1,10 +1,5 @@
 import { convertFileSrc } from "@tauri-apps/api/core";
-import {
-  documentDir,
-  join,
-  resolveResource,
-  resourceDir,
-} from "@tauri-apps/api/path";
+import { resolveResource } from "@tauri-apps/api/path";
 import { useEffect, useState } from "react";
 
 export const TauriImage = (

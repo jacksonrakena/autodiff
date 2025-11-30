@@ -1,6 +1,6 @@
 import { Flex, ScrollArea, Box, Text, TextField } from "@radix-ui/themes";
 import { invoke } from "@tauri-apps/api/core";
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router";
 import { useKubePathParams } from "../../util/kube/routes";
 import { makeKubePath } from "../../util/kube/routes";
@@ -8,7 +8,6 @@ import { NoSelectStyle } from "../../util/platform";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 
 import uFuzzy from "@leeoniya/ufuzzy";
-import { useKeyPress } from "../../util/keybinds";
 type ApiResource = {
   kind: string;
   plural: string;
