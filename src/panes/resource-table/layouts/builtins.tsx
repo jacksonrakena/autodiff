@@ -3,6 +3,7 @@ import { formatKubeAge } from "../../../util/well-known-formatters";
 import { NavLink } from "react-router";
 import { KubeUrlComponents, makeKubePath } from "../../../util/kube/routes";
 import { WrappedLink } from "../../../util/platform";
+import { TooltipKubeAge } from "../../../components/TooltipKubeAge";
 
 export const Builtins = (params: KubeUrlComponents) => ({
   Prepended: [
@@ -39,7 +40,9 @@ export const Builtins = (params: KubeUrlComponents) => ({
       header: "Age",
       accessorFn: (row) => new Date(row.metadata?.creationTimestamp),
       filterVariant: "date-range",
-      Cell: ({ cell }) => <>{formatKubeAge(cell.getValue() as Date)}</>,
+      Cell: ({ cell }) => (
+        <TooltipKubeAge creationTimestamp={cell.getValue() as string} />
+      ),
     },
   ] as MRT_ColumnDef<any>[],
 });

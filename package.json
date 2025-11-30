@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@catalystic/json-to-yaml": "^1.0.0",
+    "@date-fns/tz": "^1.4.1",
     "@emotion/react": "^11.14.0",
     "@jsdevtools/humanize-anything": "^1.1.1",
     "@kubernetes/client-node": "^1.4.0",

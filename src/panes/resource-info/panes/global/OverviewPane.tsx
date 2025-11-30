@@ -14,6 +14,7 @@ import { makeKubePath } from "../../../../util/kube/routes";
 import { formatKubeAge } from "../../../../util/well-known-formatters";
 import { NavLink } from "react-router";
 import { WrappedLink } from "../../../../util/platform";
+import { TooltipKubeAge } from "../../../../components/TooltipKubeAge";
 
 export const OverviewPane = () => {
   const params = useKubePathParams();
@@ -44,7 +45,10 @@ export const OverviewPane = () => {
             <DataList.Item>
               <DataList.Label color="gray">Age</DataList.Label>
               <DataList.Value>
-                {formatKubeAge(resource.metadata?.creationTimestamp)}
+                <TooltipKubeAge
+                  creationTimestamp={resource.metadata?.creationTimestamp}
+                />
+                {/* {formatKubeAge(resource.metadata?.creationTimestamp)} */}
               </DataList.Value>
             </DataList.Item>
             <DataList.Item>
